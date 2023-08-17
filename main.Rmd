@@ -1,0 +1,127 @@
+---
+title: "Time Series Project"
+output: word_document
+date: "2023-08-17"
+author: catherine
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Packages used
+```{r}
+library(tidyverse)   # For data manipulation
+library(ggplot2)     # For data visualization
+library(forecast)    # For time series forecasting and ARIMA
+
+
+```
+
+
+
+# 1. Problem Definition:***************************
+
+
+
+# 2. Data Collection:
+
+
+# 3. Data Exploration and Preprocessing:
+```{r}
+
+# Loading data
+
+data <- read.csv("")
+
+View(data)
+str(data)
+
+# Cheking for correct data types
+
+#Check for outliers
+
+# Get summary statistics of the data
+summary(data())
+
+# plotting a time series plot to visualize how the cases of Leishmaniasis vary over time
+ggplot(data, aes(x = Year, y = cases_of_Leishmaniasis)) +
+  geom_line() +
+  labs(title = "Cases of Leishmaniasis Over Time", x = "Year", y = "Cases")
+
+```
+
+
+# 4. Stationarity Check:
+```{r}
+
+adf_test <- adf.test(data$cases_of_Leishmaniasis)
+adf_test
+# using Augmented Dickey-Fuller test for this If the p-value is less than a significance level (e.g., 0.05), you can reject the null hypothesis and consider the series stationary.
+
+```
+
+# 5. Differencing:
+
+```{r}
+
+#If your data is not stationary, apply differencing to make it stationary.
+data$diff_cases <- diff(data$cases_of_Leishmaniasis)
+
+
+```
+
+# 6. Autocorrelation and Partial Autocorrelation (ACF and PACF) Analysis:
+```{r}
+# Assuming "data" is your data frame and "cases_of_Leishmaniasis" is the column of interest
+acf_plot <- acf(data$cases_of_Leishmaniasis)
+pacf_plot <- pacf(data$cases_of_Leishmaniasis)
+
+# Plot ACF and PACF
+plot(acf_plot)
+plot(pacf_plot)
+
+```
+
+# 8. Model Fitting:
+
+```{r}
+#Model Selection
+#Based on the ACF and PACF plots, choose the order of the ARIMA model (p, d, q).
+
+# Example: ARIMA(1,1,1)
+model <- arima(data$diff_cases, order = c(1, 1, 1))
+
+
+```
+
+# 9. Model Evaluation:
+```{r}
+# Calculate accuracy metrics
+accuracy_metrics <- accuracy(forecasted_values, data$cases_of_Leishmaniasis)
+accuracy_metrics
+
+```
+
+# 10. Forecasting:
+```{r}
+forecast_data <- forecast(model, h = 10)  # Forecasting 10 periods ahead
+plot(forecast_data)
+
+```
+
+# 11. Model Testing:
+
+```{r}
+# Assuming "train_data" and "test_data" are your training and testing data subsets
+model <- arima(train_data$cases_of_Leishmaniasis, order = c(p, d, q))
+forecasted_values <- forecast(model, h = nrow(test_data))
+accuracy_metrics <- accuracy(forecasted_values, test_data$cases_of_Leishmaniasis)
+accuracy_metrics
+
+```
+
+# 12. Hyperparameter Tuning:
+#Hyperparameter tuning involves finding the best values for the parameters of the ARIMA model that optimize its performance. #You can use techniques like grid search or optimization algorithms. Consider using libraries like forecast or caret for this #purpose.
+
+# 13. Final Model Deployment (Optional):
+# 14. Documentation and Reporting:
