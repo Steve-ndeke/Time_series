@@ -6,13 +6,27 @@ author: catherine
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_chunk$set(echo = TRUE)
 ```
+#installing packages
+
+```{r}
+install.packages("tidyverse")   # For data manipulation
+install.packages("ggplot2")     # For data visualization
+install.packages("forecast")    # For time series forecasting and ARIMA
+install.packages("tseries")     #for time series
+
+
+
+```
+
+
 #Packages used
 ```{r}
 library(tidyverse)   # For data manipulation
 library(ggplot2)     # For data visualization
 library(forecast)    # For time series forecasting and ARIMA
+library(tseries)
 
 
 ```
@@ -31,7 +45,7 @@ library(forecast)    # For time series forecasting and ARIMA
 
 # Loading data
 
-data <- read.csv("")
+data <- read.csv("data/data.csv")
 
 View(data)
 str(data)
@@ -40,11 +54,15 @@ str(data)
 
 #Check for outliers
 
-# Get summary statistics of the data
-summary(data())
+# Get summary statistics of the data.
+summary(data)
+
+clean_data <-  na.omit(data)
+
+summary(clean_data)
 
 # plotting a time series plot to visualize how the cases of Leishmaniasis vary over time
-ggplot(data, aes(x = Year, y = cases_of_Leishmaniasis)) +
+ggplot(clean_data, aes(x = Year, y = Reported.cases.Leishmaniasis)) +
   geom_line() +
   labs(title = "Cases of Leishmaniasis Over Time", x = "Year", y = "Cases")
 
@@ -54,7 +72,7 @@ ggplot(data, aes(x = Year, y = cases_of_Leishmaniasis)) +
 # 4. Stationarity Check:
 ```{r}
 
-adf_test <- adf.test(data$cases_of_Leishmaniasis)
+adf_test <- adf.test(clean_data$Reported.cases.Leishmaniasis)
 adf_test
 # using Augmented Dickey-Fuller test for this If the p-value is less than a significance level (e.g., 0.05), you can reject the null hypothesis and consider the series stationary.
 
