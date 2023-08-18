@@ -54,7 +54,7 @@ str(data)
 
 #Check for outliers
 
-# Get summary statistics of the data.
+# Get summary statistics of the data.***
 summary(data)
 
 clean_data <-  na.omit(data)
