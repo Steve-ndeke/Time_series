@@ -69,11 +69,11 @@ summary(clean_data)
 
 # Calculate the index corresponding to the first 70% of the data
 data_length <- nrow(clean_data)
-index_70_percent <- round(data_length * 0.7)
+index_75_percent <- round(data_length * 0.75)
 
 # Split the data into training and test sets
-train_data <- clean_data[1:index_70_percent, ]
-test_data <- clean_data[(index_70_percent + 1):data_length, ]
+train_data <- clean_data[1:index_75_percent, ]
+test_data <- clean_data[(index_75_percent + 1):data_length, ]
 
 # Print the selected data
 print("Training Data:")
@@ -104,8 +104,6 @@ ggplot(train_data, aes(x = Year, y = Reported.cases.Leishmaniasis)) +
 
 ```
 
-```
-
 
 ```{r}
 
@@ -126,24 +124,12 @@ Null Hypothesis :The time series is non-stationary.
 Alternative Hypothesis : The time series is stationary.
 
 
-
-
-```{r}
-
-
-
-adf_test <- adf.test(clean_data$Reported.cases.Leishmaniasis)
-adf_test
-# using Augmented Dickey-Fuller test for this If the p-value is less than a significance level (e.g., 0.05), you can reject the null hypothesis and consider the series stationary.
-
-```
-
 # 5. Differencing:
 
 ```{r}
 
 #If your data is not stationary, apply differencing to make it stationary.
-original_data <- clean_data$Reported.cases.Leishmaniasis
+original_data <- train_data$Reported.cases.Leishmaniasis
 order_of_differencing <- 0
 adf_p_value <- 1
 
@@ -174,14 +160,14 @@ Debugging
 
 ```{r}
 
-# Assuming 'clean_data' is a data frame with a 'Year' column and the differenced data in 'differenced_data' column
-Year <- clean_data$Year[-10]
+
+Year <- train_data$Year
 View(Year)
 View(original_data)
 
-ggplot(clean_data, aes(x = Year, y = differenced_data)) +
-  geom_line() +
-  labs(title = "Differenced Cases of Leishmaniasis Over Time", x = "Year", y = "Differenced Cases")
+#ggplot(clean_data, aes(x = Year, y = differenced_data)) +
+#  geom_line() +
+#  labs(title = "Differenced Cases of Leishmaniasis Over Time", x = "Year", y = "Differenced Cases")
 
 
 ```
@@ -215,7 +201,8 @@ plot(pacf_plot)
 #Based on the ACF and PACF plots, choose the order of the ARIMA model (p, d, q).
 
 # Example: ARIMA(1,1,1)
-model <- arima(data$diff_cases, order = c(1, 1, 1))
+model <- arima(original_data, order = c(2, 2, 3))
+model
 
 
 ```
