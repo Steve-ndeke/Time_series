@@ -161,15 +161,6 @@ Debugging
 ```{r}
 
 
-Year <- train_data$Year
-View(Year)
-View(original_data)
-
-#ggplot(clean_data, aes(x = Year, y = differenced_data)) +
-#  geom_line() +
-#  labs(title = "Differenced Cases of Leishmaniasis Over Time", x = "Year", y = "Differenced Cases")
-
-
 ```
 
 ```{r}
