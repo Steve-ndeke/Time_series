@@ -125,15 +125,17 @@ summary(fit3)
 #Conclusion
 
 x_limits <- c(2005, 2024)
+length(x_limits)
+length(yearz)
 
-plot(yearz, cases, xlim =x_limits , ylim = c(-400, 8000), type = "o", xlab = "Year", ylab = "Cases")
+plot(yearz, cases, xlim =x_limits , ylim = c(-5000, 8000), type = "o", xlab = "Year", ylab = "Cases")
 lines(yearz, cases, type="l" )
 lines(yearz, cases-fit1$residuals, type="l", col="red")
 
 
 
 
-# forecast for 10 steps ahead
+# forecast for 3 steps ahead
 forecast = predict(fit1, n.ahead=3)
 forecast
 forecasted_values <- forecast$pred

@@ -1,0 +1,233 @@
+---
+title: "Time series project"
+author: "Catherine Nyaguthii Mwai"
+date: "2023-08-17"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+```
+#installing packages
+
+```{r}
+install.packages("tidyverse")   # For data manipulation
+install.packages("ggplot2")     # For data visualization
+install.packages("forecast")    # For time series forecasting and ARIMA
+install.packages("tseries")     #for time series
+
+
+
+```
+
+#Packages used
+```{r}
+library(tidyverse)   # For data manipulation
+library(ggplot2)     # For data visualization
+library(forecast)    # For time series forecasting and ARIMA
+library(tseries)
+
+
+```
+
+```{r}
+# In this cell I am doing data importatation, Checking the data structure and generally exploring the data
+data <- read.csv("data/data.csv")
+data
+
+summary(data)
+
+str(data)
+
+
+#Separation of concerns, we are picking the Year and the Reported.cases.Leishmaniasis columns since we will be working on that. 
+cases <- data$Reported.cases.Leishmaniasis
+cases
+yearz <- 2005:2021
+yearz
+
+```
+
+```{r}
+
+#plotting the Time series plot to check how the cases are distributed along the years
+windows(width = 8, height = 6)
+
+plot(yearz, cases, xlim = c(2005, 2021), ylim = c(0, max(cases)), type = "o", xlab = "Year", ylab = "Cases")
+
+```
+
+```{r}
+# using Augmented Dickey-Fuller test for this If the p-value is less than a significance level (e.g., 0.05), you can reject the null hypothesis and consider the series stationary.
+
+adf_test <- adf.test(cases)
+adf_test
+
+
+# 4. Stationarity Check:
+#Null Hypothesis :The time series is non-stationary.
+
+#Alternative Hypothesis : The time series is stationary.
+
+```
+
+
+```{r}
+
+#If your data is not stationary, apply differencing to make it stationary.
+original_data <- cases
+order_of_differencing <- 0
+adf_p_value <- 1
+
+while (adf_p_value >= 0.05) {  # Check for stationarity using ADF test
+  if (order_of_differencing > 0) {
+    differenced_data <- diff(original_data, differences = order_of_differencing)
+  } else {
+    differenced_data <- original_data
+  }
+  
+  adf_result <- adf.test(differenced_data)
+  adf_p_value <- adf_result$p.value
+  
+  if (adf_p_value >= 0.05) {
+    order_of_differencing <- order_of_differencing + 1
+    original_data <- differenced_data
+  }
+}
+
+cat("Order of differencing:", order_of_differencing, "\n")
+cat("Final ADF p-value:", adf_p_value, "\n")
+
+
+
+```
+
+
+```{r}
+#Coming up with the model parametrs 
+acf(original_data, lag.max=100)
+pacf(original_data, lag.max=100)
+
+
+```
+
+```{r}
+
+#model 1 ARIMA(0,4,1)
+fit1 = arima(cases, order = c(0,4,1))
+tsdiag(fit1)
+summary(fit1)
+
+#model 2 ARIMA(1,4,0)
+
+fit2 = arima(cases, order = c(1,4,0))
+tsdiag(fit2)
+summary(fit2)
+
+
+#model 3 auto
+library(forecast)
+fit3 = auto.arima(cases)
+tsdiag(fit3)
+summary(fit3)
+
+
+```
+
+
+
+```{r}
+
+x_limits <- c(2005, 2024)
+yearz <- 2005:2021
+cases <- data$Reported.cases.Leishmaniasis
+
+
+plot(yearz, cases, xlim =x_limits , ylim = c(-5000, 8000), type = "o", xlab = "Year", ylab = "Cases")
+lines(yearz, cases, type="l" )
+lines(yearz, cases-fit1$residuals, type="l", col="red")
+
+
+
+
+
+# Load necessary libraries and data if not already done
+# library(ggplot2)  # If you want to use ggplot2 for better plotting capabilities
+# data <- read.csv("your_data.csv")  # Replace with your data loading code
+
+x_limits <- c(2005, 2024)
+yearz <- 2005:2021
+cases <- data$Reported.cases.Leishmaniasis
+
+# Create a basic line plot
+plot(yearz, cases, xlim = x_limits, ylim = c(-5000, 8000), type = "o", xlab = "Year", ylab = "Cases")
+
+# Add a line plot for the original cases
+lines(yearz, cases, type = "l")
+
+# Assuming you have fit1 and fit1$residuals defined elsewhere, add a red line plot for residuals
+lines(yearz, cases - fit1$residuals, type = "l", col = "red")
+
+
+```
+
+
+```{r}
+# forecast for 3 steps ahead
+forecast = predict(fit1, n.ahead=3)
+forecast
+forecasted_values <- forecast$pred
+forecasted_values
+
+# Ensure you have the last observed value from your original time series
+last_observed_value <- cases[length(cases)]
+last_observed_value
+
+# Initialize a vector to store recovered predictions
+recovered_predictions <- numeric(length(forecasted_values))
+recovered_predictions
+
+# Reverse the differencing operation
+for (i in 1:length(forecasted_values)) {
+  recovered_predictions[i] <- last_observed_value + forecasted_values[i]
+  last_observed_value <- recovered_predictions[i]
+}
+recovered_predictions
+# Now, 'recovered_predictions' contains the predictions in the original scale
+
+forecasted_years <- 2022:2024
+lines(forecasted_years, recovered_predictions, type = "o", col = "red")
+lines(forecasted_years, recovered_predictions-1.96*forecast$se, col="blue")
+lines(forecasted_years, recovered_predictions+1.96*forecast$se, col="blue")
+# Customize the x-axis ticks to increment by 1
+axis(1, at = seq(2005, 2024, by = 1))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
